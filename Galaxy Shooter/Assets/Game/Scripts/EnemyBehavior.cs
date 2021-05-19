@@ -11,6 +11,8 @@ public class EnemyBehavior : MonoBehaviour
     private GameObject _enemy;
     [SerializeField]
     private GameObject _enemyExplPrfb;
+    [SerializeField]
+    private AudioClip _clip;
 
     private UIManager uiManager;
 
@@ -35,15 +37,16 @@ public class EnemyBehavior : MonoBehaviour
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
         if(transform.position.y < -5.85f)
         {
-            //float rndX = Random.Range(-5f, 5f);
-            //transform.position = new Vector3(rndX, 6f, 0);
-            Destroy(this.gameObject);
+            float rndX = Random.Range(-5f, 5f);
+            transform.position = new Vector3(rndX, 6f, 0);
+            //Destroy(this.gameObject);
         }
     }
 
     public void LifeManager()
     {
         //Instantiate(_enemy);
+        AudioSource.PlayClipAtPoint(_clip, Camera.main.transform.position);
         Instantiate(_enemyExplPrfb, transform.position, Quaternion.identity);
            
         Destroy(this.gameObject);

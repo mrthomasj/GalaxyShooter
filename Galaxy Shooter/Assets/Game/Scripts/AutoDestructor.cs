@@ -10,5 +10,5 @@ public class AutoDestructor : MonoBehaviour
     {
         Destroy(gameObject, this.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length + delay);
     }
-
+     
 }

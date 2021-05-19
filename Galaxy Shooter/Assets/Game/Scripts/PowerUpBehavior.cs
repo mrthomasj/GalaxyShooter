@@ -8,6 +8,8 @@ public class PowerUpBehavior : MonoBehaviour
     private float _speed = 3.0f;
     [SerializeField]
     private int pwrUpId; // 0 = TriShot, 1 = SpeedBoost, 2 = Shields
+    [SerializeField]
+    private AudioClip _clip;
 
 
     // Start is called before the first frame update
@@ -45,7 +47,7 @@ public class PowerUpBehavior : MonoBehaviour
                 }
             }
 
-            
+            AudioSource.PlayClipAtPoint(_clip, Camera.main.transform.position);
             Destroy(this.gameObject);
         }
     }

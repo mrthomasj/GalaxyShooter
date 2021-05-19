@@ -18,6 +18,11 @@ public class LaserBehavior : MonoBehaviour
     private void Movement()
     {
         transform.Translate(Vector3.up * 25 * Time.deltaTime);
+        if(transform.position.y > 6.25f)
+        {
+            Destroy(this.gameObject);
+        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)

@@ -16,31 +16,46 @@ public class PlayerControls : MonoBehaviour
     private int _lives = 3;
     [SerializeField]
     private bool _shieldOn = false;
+    [SerializeField]
+    private GameObject[] _engines;
 
 
 
     private float _nextFire = 0.0f;
-    private UIManager uiManager;
-    private GameManager gameManager;
+    private UIManager _uiManager;
+    private GameManager _gameManager;
+    private SpawnManager _spawnManager;
+    private AudioSource _audioSource;
+    private int _hitCount = 0;
+    private int? _firstFailureRef;
+
 
     public bool tripleShotOn = false;
     public bool boosterOn = false;
-    public bool isAlive = true;
+   
 
 
     private void Awake()
     {
-        uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
+        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+        _audioSource = GetComponent<AudioSource>();
+        
     }
+
 
     // Start is called before the first frame update
     void Start()
     {
+        _hitCount = 0;
+        _firstFailureRef = null;
+
         transform.position = new Vector3(0, -4.15f, 0);
         
-            if(uiManager != null)
-                uiManager.UpdateLives(_lives);
+            if(_uiManager != null)
+                _uiManager.UpdateLives(_lives);
+        _spawnManager.RunSpawnRoutines();
     }
 
     // Update is called once per frame
@@ -80,9 +95,11 @@ public class PlayerControls : MonoBehaviour
 
     private void Shoot()
     {
+        
         if(Input.GetKeyDown(KeyCode.Space) || Input.GetKey(KeyCode.Space) && Time.time > _nextFire )
         {
-            if(tripleShotOn == true)
+            _audioSource.Play();
+            if (tripleShotOn == true)
             {
                 Instantiate(_tripShot, transform.position, Quaternion.identity);
                 
@@ -140,7 +157,30 @@ public class PlayerControls : MonoBehaviour
             if (_shieldOn)
                 ShieldDisable();
             else
+            {
+                _hitCount++;
+                if (_firstFailureRef == null && _hitCount == 1)
+                {
+                    _firstFailureRef = Random.Range(0, 2);
+                    _engines[(int)_firstFailureRef].SetActive(true);
+                }
+                else if(_firstFailureRef != null && _hitCount == 2)
+                {
+                    switch (_firstFailureRef)
+                    {
+                        case 0:
+                            _firstFailureRef = 1;
+                            _engines[(int)_firstFailureRef].SetActive(true);
+                            break;
+                        case 1:
+                            _firstFailureRef = 0;
+                            _engines[(int)_firstFailureRef].SetActive(true);
+                            break;
+                    }
+                }
                 _lives--;
+            }
+                
                 
         }
         else
@@ -150,14 +190,13 @@ public class PlayerControls : MonoBehaviour
                 ShieldDisable();
                 return;
             }
-                 
+
             _lives--;
-            isAlive = false;
             Destroy(this.gameObject);
-            gameManager.gameRunning = uiManager.GameOver(gameManager.gameRunning);
+            _gameManager.gameRunning = _uiManager.GameOver(_gameManager.gameRunning);
         }
         Debug.Log($"Player Lives: {_lives}");
-        uiManager.UpdateLives(_lives);
+        _uiManager.UpdateLives(_lives);
 
     }
 }
